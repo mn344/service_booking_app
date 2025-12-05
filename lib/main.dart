@@ -1,20 +1,19 @@
 import 'package:flutter/material.dart';
+import 'package:firebase_core/firebase_core.dart';
+import 'firebase_options.dart';
+import 'package:get/get.dart';
 
-// COMMON SCREENS
-import 'views/common/splash_screen.dart';
-import 'views/common/onboarding_screen.dart';
-import 'views/common/role_selection_screen.dart';
-import 'views/common/provider_list_screen.dart';
+// ROUTES
+import 'routes.dart'; // We'll handle all routes in one file
 
-// CUSTOMER SCREENS
-import 'views/customer/home_screen.dart';
-import 'views/customer/personal_info_screen.dart';
-import 'views/customer/booking_detail_screen.dart';
+void main() async {
+  WidgetsFlutterBinding.ensureInitialized();
 
-// PROVIDER SCREENS
-import 'views/provider/provider_home_screen.dart';   // ✅ NEW IMPORT
+  // Initialize Firebase
+  await Firebase.initializeApp(
+    options: DefaultFirebaseOptions.currentPlatform,
+  );
 
-void main() {
   runApp(const MyApp());
 }
 
@@ -23,21 +22,17 @@ class MyApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
+    return GetMaterialApp(
       debugShowCheckedModeBanner: false,
       title: "Service Booking App",
 
-      routes: {
-        '/onboarding': (context) => const OnboardingScreen(),
-        '/roleSelect': (context) => const RoleSelectionScreen(),
-        '/home': (context) => const HomeScreen(),
-        '/personalInfo': (context) => const PersonalInfoScreen(),
+      // ⭐ Using GetX named routes
+      initialRoute: Routes.splash,
 
-        // ✅ NEW ROUTE FOR PROVIDER
-        '/providerHome': (context) => ProviderHomeScreen(),
-      },
+      getPages: AppPages.pages,  // Pass the pages list from AppPages
 
-      home: const SplashScreen(),
+      // Optional theme
+      // theme: ThemeData(primarySwatch: Colors.blue),
     );
   }
 }

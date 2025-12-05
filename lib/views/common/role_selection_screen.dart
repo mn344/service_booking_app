@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
-import '../auth/login_screen.dart';
+import 'package:get/get.dart';
+
+import '../../routes.dart';
 
 class RoleSelectionScreen extends StatelessWidget {
   const RoleSelectionScreen({super.key});
@@ -13,7 +15,7 @@ class RoleSelectionScreen extends StatelessWidget {
         children: [
           const SizedBox(height: 150),
 
-          // ----------- CleanX Logo -----------
+          /// CleanX Logo
           RichText(
             text: TextSpan(
               children: [
@@ -39,7 +41,7 @@ class RoleSelectionScreen extends StatelessWidget {
 
           const Spacer(),
 
-          // ---------- White Container ----------
+          /// White Container
           Container(
             width: double.infinity,
             padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 30),
@@ -53,7 +55,6 @@ class RoleSelectionScreen extends StatelessWidget {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                // ----------- Greeting Text -----------
                 Row(
                   children: [
                     Text(
@@ -66,9 +67,9 @@ class RoleSelectionScreen extends StatelessWidget {
                     const Text("👋", style: TextStyle(fontSize: 22)),
                   ],
                 ),
+
                 const SizedBox(height: 5),
 
-                // ----------- RichText -----------
                 RichText(
                   text: TextSpan(
                     style: GoogleFonts.poppins(
@@ -90,10 +91,9 @@ class RoleSelectionScreen extends StatelessWidget {
 
                 const SizedBox(height: 25),
 
-                // ---------------- Buttons Row ----------------
                 Row(
                   children: [
-                    // ⭐ USER BUTTON
+                    /// USER BUTTON
                     Expanded(
                       child: ElevatedButton(
                         style: ElevatedButton.styleFrom(
@@ -104,13 +104,7 @@ class RoleSelectionScreen extends StatelessWidget {
                           padding: const EdgeInsets.symmetric(vertical: 15),
                         ),
                         onPressed: () {
-                          Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                              builder: (context) =>
-                              const LoginScreen(userType: "user"),
-                            ),
-                          );
+                          Get.toNamed(Routes.loginUser); // 👈 Correct route
                         },
                         child: Text(
                           "As User",
@@ -124,7 +118,7 @@ class RoleSelectionScreen extends StatelessWidget {
 
                     const SizedBox(width: 15),
 
-                    // ⭐ PROVIDER BUTTON
+                    // PROVIDER BUTTON
                     Expanded(
                       child: ElevatedButton(
                         style: ElevatedButton.styleFrom(
@@ -135,13 +129,7 @@ class RoleSelectionScreen extends StatelessWidget {
                           padding: const EdgeInsets.symmetric(vertical: 15),
                         ),
                         onPressed: () {
-                          Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                              builder: (context) =>
-                              const LoginScreen(userType: "provider"),
-                            ),
-                          );
+                          Get.toNamed(Routes.loginProvider); // 👈 Correct route
                         },
                         child: Text(
                           "As Provider",
@@ -157,7 +145,6 @@ class RoleSelectionScreen extends StatelessWidget {
 
                 const SizedBox(height: 20),
 
-                // Footer Text
                 Center(
                   child: Text(
                     "Please Choose One ☝️ Of The Options Above",
@@ -166,7 +153,7 @@ class RoleSelectionScreen extends StatelessWidget {
                       color: Colors.black54,
                     ),
                   ),
-                )
+                ),
               ],
             ),
           ),

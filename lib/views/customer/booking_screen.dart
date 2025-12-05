@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:get/get.dart'; // ← ADD THIS
 import 'package:google_fonts/google_fonts.dart';
-import 'package:service_booking_app/views/customer/personal_info_screen.dart';  // Ensure the correct import path
+import 'package:service_booking_app/views/customer/personal_info_screen.dart';
 
 class BookingScreen extends StatefulWidget {
   final String serviceName;
@@ -14,8 +15,6 @@ class BookingScreen extends StatefulWidget {
 class _BookingScreenState extends State<BookingScreen> {
   List<int> selectedIndexes = [];
 
-
-  // UPDATED CATEGORIES
   final List<Map<String, dynamic>> categories = [
     {"icon": Icons.cleaning_services, "name": "Standard Cleaning"},
     {"icon": Icons.cleaning_services_outlined, "name": "Deep Cleaning"},
@@ -51,7 +50,7 @@ class _BookingScreenState extends State<BookingScreen> {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   GestureDetector(
-                    onTap: () => Navigator.pop(context),
+                    onTap: () => Get.back(),  // ← REPLACED
                     child: const Icon(Icons.arrow_back, color: Colors.white),
                   ),
                   const SizedBox(height: 14),
@@ -121,18 +120,17 @@ class _BookingScreenState extends State<BookingScreen> {
                     final item = categories[index];
                     final bool isSelected = selectedIndexes.contains(index);
 
-
                     return GestureDetector(
                       onTap: () {
                         setState(() {
-                          if (selectedIndexes.contains(index)) {
+                          if (isSelected) {
                             selectedIndexes.remove(index);
                           } else {
                             selectedIndexes.add(index);
                           }
                         });
-
                       },
+
                       child: AnimatedContainer(
                         duration: const Duration(milliseconds: 200),
                         padding: const EdgeInsets.all(12),
@@ -188,32 +186,27 @@ class _BookingScreenState extends State<BookingScreen> {
                   onPressed: selectedIndexes.isEmpty
                       ? null
                       : () {
-                    // Navigate to Personal Info Screen after selecting category
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                        builder: (context) => const PersonalInfoScreen(),
-                      ),
-                    );
+                    Get.to(() => const PersonalInfoScreen()); // ← REPLACED WITH GETX
                   },
+
                   style: ElevatedButton.styleFrom(
-                    backgroundColor: const Color(0xFF03A9F4), // same as header
+                    backgroundColor: const Color(0xFF03A9F4),
                     foregroundColor: Colors.white,
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(14),
                     ),
                   ).copyWith(
-                    // When pressed → same color as selected card
                     overlayColor: MaterialStateProperty.all(
-                      const Color(0xff01579B).withOpacity(0.3), // Fix opacity
+                      const Color(0xff01579B).withOpacity(0.3),
                     ),
                     backgroundColor: MaterialStateProperty.resolveWith((states) {
                       if (states.contains(MaterialState.pressed)) {
-                        return const Color(0xff01579B); // Same as card
+                        return const Color(0xff01579B);
                       }
-                      return const Color(0xFF03A9F4); // Normal state color
+                      return const Color(0xFF03A9F4);
                     }),
                   ),
+
                   child: Text(
                     "Next",
                     style: GoogleFonts.poppins(

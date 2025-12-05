@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:service_booking_app/views/common/role_selection_screen.dart';
+import 'package:get/get.dart';
+
 
 class OnboardingScreen extends StatefulWidget {
   const OnboardingScreen({Key? key}) : super(key: key);
@@ -95,12 +96,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                   onPressed: () {
                     if (currentIndex == onboardingData.length - 1) {
                       //  MOVE TO ROLE SELECTION SCREEN
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                          builder: (context) => const RoleSelectionScreen(),
-                        ),
-                      );
+                      Get.toNamed('/roleSelect');
                     } else {
                       //  NEXT SLIDE
                       _controller.nextPage(

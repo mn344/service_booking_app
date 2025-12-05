@@ -1,6 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'booking_screen.dart';
+import 'package:get/get.dart';
+import 'package:service_booking_app/views/auth/profile_screen.dart';
+import 'package:firebase_auth/firebase_auth.dart';
+import 'package:service_booking_app/routes.dart';
+import 'package:service_booking_app/views/auth/change_password_screen.dart';
+
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -16,6 +22,10 @@ class _HomeScreenState extends State<HomeScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: Colors.white,
+
+      // ---------------- ADD DRAWER ----------------
+      drawer: _buildDrawer(context),
+
       body: SafeArea(
         child: Column(
           children: [
@@ -35,15 +45,27 @@ class _HomeScreenState extends State<HomeScreen> {
                 children: [
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: const [
-                      Icon(Icons.menu, color: Colors.white, size: 26),
-                      Icon(Icons.notifications_none,
+                    children: [
+                      // ---------------- MENU ICON FIXED ----------------
+                      Builder(
+                        builder: (context) => GestureDetector(
+                          onTap: () {
+                            Scaffold.of(context).openDrawer();
+                          },
+                          child: const Icon(Icons.menu,
+                              color: Colors.white, size: 26),
+                        ),
+                      ),
+
+                      const Icon(Icons.notifications_none,
                           color: Colors.white, size: 24),
                     ],
                   ),
+
                   const SizedBox(height: 12),
+
                   Text(
-                    "Hello Jonathan",
+                    "Hello Maham",
                     style: GoogleFonts.poppins(
                       fontSize: 22,
                       color: Colors.white,
@@ -98,7 +120,7 @@ class _HomeScreenState extends State<HomeScreen> {
 
             const SizedBox(height: 14),
 
-            // ---------------- SCROLLABLE GRID (PERFECT FIX) ----------------
+            // ---------------- GRID ----------------
             Expanded(
               child: SingleChildScrollView(
                 physics: const BouncingScrollPhysics(),
@@ -108,15 +130,13 @@ class _HomeScreenState extends State<HomeScreen> {
                     shrinkWrap: true,
                     physics: const NeverScrollableScrollPhysics(),
                     itemCount: 4,
-
                     gridDelegate:
                     const SliverGridDelegateWithFixedCrossAxisCount(
                       crossAxisCount: 2,
                       mainAxisSpacing: 2,
                       crossAxisSpacing: 2,
-                      childAspectRatio: 1.25, // PERFECT SIZE FOR ALL SCREENS
+                      childAspectRatio: 1.25,
                     ),
-
                     itemBuilder: (context, index) {
                       return _serviceCard(
                         index: index,
@@ -147,12 +167,7 @@ class _HomeScreenState extends State<HomeScreen> {
         setState(() => selectedIndex = index);
 
         Future.delayed(const Duration(milliseconds: 150), () {
-          Navigator.push(
-            context,
-            MaterialPageRoute(
-              builder: (context) => BookingScreen(serviceName: title),
-            ),
-          ).then((_) {
+          Get.to(() => BookingScreen(serviceName: title))?.then((_) {
             setState(() => selectedIndex = -1);
           });
         });
@@ -201,6 +216,158 @@ class _HomeScreenState extends State<HomeScreen> {
           ],
         ),
       ),
+    );
+  }
+
+  // --------------------------------------------------------------------------
+  // -------------------------- BEAUTIFUL DRAWER ------------------------------
+  // --------------------------------------------------------------------------
+
+  Widget _buildDrawer(BuildContext context) {
+    return Drawer(
+      backgroundColor: Colors.white,
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          // ---------------- HEADER ----------------
+          Container(
+            padding: const EdgeInsets.fromLTRB(20, 50, 20, 30),
+            decoration: const BoxDecoration(
+              color: Color(0xff06BEE1),
+              borderRadius: BorderRadius.only(
+                bottomLeft: Radius.circular(40),
+                bottomRight: Radius.circular(40),
+              ),
+            ),
+            child: Column(
+              children: const [
+                CircleAvatar(
+                  radius: 45,
+                  backgroundColor: Colors.white,
+                  child: CircleAvatar(
+                    radius: 40,
+                    backgroundImage:
+                    AssetImage("assets/images/chimny_cleaner.png"),
+                  ),
+                ),
+                SizedBox(height: 12),
+                Text(
+                  "Maham Fatima",
+                  style: TextStyle(
+                    fontSize: 20,
+                    color: Colors.white,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+                SizedBox(height: 4),
+                Text(
+                  "mahamzaman364@gmail.com",
+                  style: TextStyle(fontSize: 14, color: Colors.white70),
+                ),
+              ],
+            ),
+          ),
+
+          const SizedBox(height: 20),
+
+          // ---------------- MENU ITEMS ----------------
+          Expanded(
+            child: ListView(
+              children: [
+                _drawerTile(
+                  icon: Icons.person_outline,
+                  text: "Profile",
+                  onTap: () {
+                    Navigator.pop(context);
+                    Get.to(() =>  ProfileScreen());
+                  },
+                ),
+                _drawerTile(
+                    icon: Icons.settings_outlined,
+                    text: "Settings",
+                    onTap: () {
+                      Navigator.pop(context); // Close the drawer
+                      Get.to(() => ChangePasswordScreen());
+                    }),
+                _drawerTile(
+                    icon: Icons.dark_mode_outlined,
+                    text: "Dark Mode",
+                    onTap: () {}),
+                _drawerTile(
+                    icon: Icons.info_outline,
+                    text: "About App",
+                    onTap: () {}),
+
+                const SizedBox(height: 40),
+
+                _drawerTile(
+                  icon: Icons.logout,
+                  text: "Logout",
+                  color: Colors.red,
+                  onTap: () => _showLogoutDialog(context),
+                ),
+              ],
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  // ---------------- Drawer Tile ----------------
+  Widget _drawerTile({
+    required IconData icon,
+    required String text,
+    required VoidCallback onTap,
+    Color color = Colors.black,
+  }) {
+    return ListTile(
+      leading: Icon(icon, size: 24, color: color),
+      title: Text(
+        text,
+        style: TextStyle(
+          fontSize: 16,
+          color: color,
+          fontWeight: FontWeight.w500,
+        ),
+      ),
+      onTap: onTap,
+    );
+  }
+
+  // ---------------- Logout Dialog ----------------
+  void _showLogoutDialog(BuildContext context) {
+    showDialog(
+      context: context,
+      builder: (context) {
+        return AlertDialog(
+          shape:
+          RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+          title: const Text("Logout"),
+          content:
+          const Text("Are you sure you want to log out from your account?"),
+          actions: [
+            TextButton(
+              style: TextButton.styleFrom(
+                foregroundColor: Colors.white,
+                backgroundColor: Colors.lightBlue, // Set the background color
+              ),
+              child: const Text("Cancel"),
+              onPressed: () => Navigator.pop(context),
+            ),
+            ElevatedButton(
+              style:
+              ElevatedButton.styleFrom(foregroundColor: Colors.white,backgroundColor: Colors.blue),
+              child: const Text("Logout"),
+              onPressed: () {
+                Navigator.pop(context);
+                FirebaseAuth.instance.signOut();  // Firebase logout
+                Get.offAllNamed(Routes.loginUser);// Add Firebase logout here later//
+              },
+            ),
+          ],
+        );
+      },
     );
   }
 }

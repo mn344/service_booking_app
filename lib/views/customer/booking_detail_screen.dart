@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
 import 'package:service_booking_app/views/customer/chat/chat_screen.dart';
-
 
 class BookingDetailScreen extends StatelessWidget {
   final String userName;
@@ -21,7 +21,6 @@ class BookingDetailScreen extends StatelessWidget {
     required this.location,
     required this.jobType,
     required this.projectLength,
-
     required this.providerName,
     required this.providerPrice,
     required this.providerRating,
@@ -71,7 +70,7 @@ class BookingDetailScreen extends StatelessWidget {
 
                   Row(
                     children: [
-                      CircleAvatar(
+                      const CircleAvatar(
                         radius: 30,
                         backgroundImage:
                         AssetImage('assets/images/user_avatar.jpg'),
@@ -82,16 +81,20 @@ class BookingDetailScreen extends StatelessWidget {
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           _buildText("Name: $userName",
-                              fontWeight: FontWeight.bold, color: Colors.black),
+                              fontWeight: FontWeight.bold,
+                              color: Colors.black),
                           const SizedBox(height: 4),
                           _buildText("Phone: $contact",
-                              fontWeight: FontWeight.bold, color: Colors.black),
+                              fontWeight: FontWeight.bold,
+                              color: Colors.black),
                           const SizedBox(height: 4),
                           _buildText("Service Type: $jobType",
-                              fontWeight: FontWeight.bold, color: Colors.black),
+                              fontWeight: FontWeight.bold,
+                              color: Colors.black),
                           const SizedBox(height: 4),
                           _buildText("Time: $projectLength",
-                              fontWeight: FontWeight.bold, color: Colors.black),
+                              fontWeight: FontWeight.bold,
+                              color: Colors.black),
                         ],
                       )
                     ],
@@ -106,7 +109,6 @@ class BookingDetailScreen extends StatelessWidget {
 
             const SizedBox(height: 20),
 
-            // ---------- BOOKING INFORMATION ----------
             const Text(
               "Booking Information",
               style: TextStyle(
@@ -131,72 +133,57 @@ class BookingDetailScreen extends StatelessWidget {
 
                 const SizedBox(height: 10),
 
-                _buildBookingRow('Total', '', providerPrice, '', 0,
-                    Icons.attach_money),
+                _buildBookingRow(
+                    'Total', '', providerPrice, '', 0, Icons.attach_money),
               ],
             ),
 
             const SizedBox(height: 20),
 
-            // ⭐⭐ FIRST COLUMN (Submit button)
-            Column(
-              children: [
-                SizedBox(
-                  width: double.infinity,
-                  child: ElevatedButton(
-                    onPressed: () {
-                      // confirm function
-                    },
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: Colors.blue,
-                      padding: const EdgeInsets.symmetric(vertical: 16),
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(12),
-                      ),
-                    ),
-                    child: const Text(
-                      "Submit",
-                      style: TextStyle(fontSize: 20, color: Colors.white),
-                    ),
+
+            // ⭐ SUBMIT BUTTON
+            SizedBox(
+              width: double.infinity,
+              child: ElevatedButton(
+                onPressed: () {},
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: Colors.blue,
+                  padding: const EdgeInsets.symmetric(vertical: 16),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(12),
                   ),
                 ),
-              ],
+                child: const Text(
+                  "Submit",
+                  style: TextStyle(fontSize: 20, color: Colors.white),
+                ),
+              ),
             ),
 
             const SizedBox(height: 16),
 
-            // ⭐⭐ SECOND COLUMN (Chat button)
-            Column(
-              children: [
-                SizedBox(
-                  width: double.infinity,
-                  child: ElevatedButton(
-                    onPressed: () {
-                      // ⭐ NAVIGATION TO CHAT SCREEN
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                          builder: (context) => ChatScreen(
-                            providerName: providerName,
-                            providerImage: providerImage,
-                          ),
-                        ),
-                      );
-                    },
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: Colors.purple,
-                      padding: const EdgeInsets.symmetric(vertical: 16),
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(12),
-                      ),
-                    ),
-                    child: const Text(
-                      "Chat",
-                      style: TextStyle(fontSize: 20, color: Colors.white),
-                    ),
+            // ⭐ CHAT BUTTON (GETX FIXED)
+            SizedBox(
+              width: double.infinity,
+              child: ElevatedButton(
+                onPressed: () {
+                  Get.to(() => ChatScreen(
+                    providerName: providerName,
+                    providerImage: providerImage,
+                  ));
+                },
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: Colors.purple,
+                  padding: const EdgeInsets.symmetric(vertical: 16),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(12),
                   ),
                 ),
-              ],
+                child: const Text(
+                  "Chat",
+                  style: TextStyle(fontSize: 20, color: Colors.white),
+                ),
+              ),
             ),
           ],
         ),
@@ -205,16 +192,15 @@ class BookingDetailScreen extends StatelessWidget {
   }
 
   // -------------------------------------------------------
-  // Helper for displaying text
   Widget _buildText(String text,
-      {FontWeight fontWeight = FontWeight.normal,
-        Color color = Colors.grey}) {
-    return Text(text,
-        style: TextStyle(fontSize: 14, fontWeight: fontWeight, color: color));
+      {FontWeight fontWeight = FontWeight.normal, Color color = Colors.grey}) {
+    return Text(
+      text,
+      style: TextStyle(fontSize: 14, fontWeight: fontWeight, color: color),
+    );
   }
 
   // -------------------------------------------------------
-  // Provider row
   Widget _buildProviderRow() {
     return Container(
       padding: const EdgeInsets.symmetric(vertical: 8),
@@ -263,7 +249,6 @@ class BookingDetailScreen extends StatelessWidget {
   }
 
   // -------------------------------------------------------
-  // Other booking rows
   Widget _buildBookingRow(String title, String subtitle, String price,
       String details, double rating, IconData icon) {
     return Container(

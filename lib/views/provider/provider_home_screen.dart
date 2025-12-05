@@ -1,4 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
+
+// PROVIDER SCREENS
 import 'package:service_booking_app/views/provider/provider_job_detail_screen.dart';
 import 'package:service_booking_app/views/provider/provider_edit_profile_screen.dart';
 import 'package:service_booking_app/views/provider/provider_update_category_screen.dart';
@@ -179,13 +182,7 @@ class ProviderHomeScreen extends StatelessWidget {
                                         horizontal: 16, vertical: 8),
                                   ),
                                   onPressed: () {
-                                    Navigator.push(
-                                      context,
-                                      MaterialPageRoute(
-                                        builder: (context) =>
-                                        const ProviderJobDetailScreen(),
-                                      ),
-                                    );
+                                    Get.to(() => const ProviderJobDetailScreen());
                                   },
                                   child: const Text(
                                     "Details",
@@ -209,9 +206,10 @@ class ProviderHomeScreen extends StatelessWidget {
   }
 }
 
-// --------------------------
-// PROVIDER DRAWER UPDATED ✔
-// --------------------------
+// ====================================================
+// PROVIDER DRAWER — UPDATED TO GETX ✔
+// ====================================================
+
 class ProviderDrawer extends StatelessWidget {
   const ProviderDrawer({super.key});
 
@@ -254,13 +252,7 @@ class ProviderDrawer extends StatelessWidget {
                   top: 10,
                   child: GestureDetector(
                     onTap: () {
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                          builder: (context) =>
-                          const ProviderEditProfileScreen(),
-                        ),
-                      );
+                      Get.to(() => const ProviderEditProfileScreen());
                     },
                     child: const Icon(
                       Icons.edit,
@@ -275,75 +267,36 @@ class ProviderDrawer extends StatelessWidget {
             const SizedBox(height: 10),
 
             _drawerItem(
-              context,
               Icons.home_outlined,
               "Home",
-                  () => Navigator.pop(context),
+                  () => Get.back(),
             ),
 
             _drawerItem(
-              context,
               Icons.work_outline,
               "Job Details",
-                  () {
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                    builder: (context) =>
-                    const ProviderJobDetailScreen(),
-                  ),
-                );
-              },
+                  () => Get.to(() => const ProviderJobDetailScreen()),
             ),
 
             _drawerItem(
-              context,
               Icons.assignment_outlined,
               "Bookings",
-                  () {
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                    builder: (context) => const ProviderBookingsScreen(),
-                  ),
-                );
-              },
+                  () => Get.to(() => const ProviderBookingsScreen()),
             ),
-            // ⭐ NEW: Add & Update Category Navigation
+
             _drawerItem(
-              context,
               Icons.category_outlined,
               "Add & Update Category",
-                  () {
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                    builder: (context) =>
-                    const ProviderUpdateCategoryScreen(),
-                  ),
-                );
-              },
+                  () => Get.to(() => const ProviderUpdateCategoryScreen()),
             ),
 
             _drawerItem(
-              context,
               Icons.assignment_outlined,
               "Chat List",
-                  () {
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                    builder: (_) => const ProviderChatListScreen(),
-                  ),
-                );
-              },
+                  () => Get.to(() => const ProviderChatListScreen()),
             ),
 
-
-
-
             _drawerItem(
-              context,
               Icons.help_outline,
               "Help & Support",
                   () {},
@@ -355,7 +308,7 @@ class ProviderDrawer extends StatelessWidget {
   }
 }
 
-Widget _drawerItem(BuildContext context, IconData icon, String text, VoidCallback onTap) {
+Widget _drawerItem(IconData icon, String text, VoidCallback onTap) {
   return ListTile(
     leading: Icon(icon, color: Colors.black87),
     title: Text(text, style: const TextStyle(color: Colors.black87)),
