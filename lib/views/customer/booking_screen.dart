@@ -1,41 +1,44 @@
 import 'package:flutter/material.dart';
-import 'package:get/get.dart'; // ← ADD THIS
+import 'package:get/get.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'package:service_booking_app/views/customer/personal_info_screen.dart';
+
+import '../../viewmodels/services/service_viewmodel.dart';
+import '../../models/cleaning_service_model.dart';
+import 'personal_info_screen.dart';
 
 class BookingScreen extends StatefulWidget {
-  final String serviceName;
-
-  const BookingScreen({super.key, required this.serviceName});
+  const BookingScreen({super.key});
 
   @override
   State<BookingScreen> createState() => _BookingScreenState();
 }
 
 class _BookingScreenState extends State<BookingScreen> {
-  List<int> selectedIndexes = [];
+  // 🔵 mainType receive
+  late final String mainType;
 
-  final List<Map<String, dynamic>> categories = [
-    {"icon": Icons.cleaning_services, "name": "Standard Cleaning"},
-    {"icon": Icons.cleaning_services_outlined, "name": "Deep Cleaning"},
-    {"icon": Icons.local_shipping, "name": "Moving Cleaning"},
-    {"icon": Icons.sanitizer, "name": "Sanitization"},
-    {"icon": Icons.blinds, "name": "Blinds Cleaning"},
-    {"icon": Icons.curtains, "name": "Curtains Cleaning"},
-    {"icon": Icons.clean_hands, "name": "Floor Cleaning"},
-    {"icon": Icons.fireplace, "name": "Chimney Sweeping"},
-    {"icon": Icons.bathroom, "name": "Bathroom Cleaning"},
-  ];
+  // 🔵 ViewModel
+  final ServiceViewModel controller = Get.find<ServiceViewModel>();
+
+  @override
+  void initState() {
+    super.initState();
+
+    // ✅ Receive argument from HomeScreen
+    mainType = Get.arguments as String;
+
+    // ✅ Load services
+    controller.loadServices(mainType);
+  }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: Colors.white,
-
       body: SafeArea(
         child: Column(
           children: [
-            // HEADER
+            // ---------------- HEADER ----------------
             Container(
               width: double.infinity,
               padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 18),
@@ -50,7 +53,7 @@ class _BookingScreenState extends State<BookingScreen> {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   GestureDetector(
-                    onTap: () => Get.back(),  // ← REPLACED
+                    onTap: () => Get.back(),
                     child: const Icon(Icons.arrow_back, color: Colors.white),
                   ),
                   const SizedBox(height: 14),
@@ -73,74 +76,47 @@ class _BookingScreenState extends State<BookingScreen> {
               ),
             ),
 
-            const SizedBox(height: 10),
-
-            // SEARCH BAR
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 20),
-              child: Container(
-                height: 50,
-                padding: const EdgeInsets.symmetric(horizontal: 16),
-                decoration: BoxDecoration(
-                  color: Colors.white,
-                  borderRadius: BorderRadius.circular(14),
-                  border: Border.all(color: Colors.grey.shade300),
-                ),
-                child: Row(
-                  children: [
-                    const Icon(Icons.search, color: Colors.grey),
-                    const SizedBox(width: 10),
-                    Text(
-                      "Search",
-                      style: GoogleFonts.poppins(
-                        fontSize: 14,
-                        color: Colors.grey,
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-            ),
-
             const SizedBox(height: 12),
 
-            // GRID
+            // ---------------- SERVICE GRID ----------------
             Expanded(
-              child: Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 20),
-                child: GridView.builder(
-                  itemCount: categories.length,
-                  gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+              child: Obx(() {
+                if (controller.isLoading.value) {
+                  return const Center(child: CircularProgressIndicator());
+                }
+
+                if (controller.services.isEmpty) {
+                  return const Center(child: Text("No services available"));
+                }
+
+                return GridView.builder(
+                  padding: const EdgeInsets.symmetric(horizontal: 20),
+                  itemCount: controller.services.length,
+                  gridDelegate:
+                  const SliverGridDelegateWithFixedCrossAxisCount(
                     crossAxisCount: 3,
                     mainAxisSpacing: 14,
                     crossAxisSpacing: 14,
                     childAspectRatio: 0.78,
                   ),
                   itemBuilder: (context, index) {
-                    final item = categories[index];
-                    final bool isSelected = selectedIndexes.contains(index);
+                    final CleaningServiceModel service =
+                    controller.services[index];
+
+                    final bool isSelected =
+                    controller.selectedServices.contains(service);
 
                     return GestureDetector(
-                      onTap: () {
-                        setState(() {
-                          if (isSelected) {
-                            selectedIndexes.remove(index);
-                          } else {
-                            selectedIndexes.add(index);
-                          }
-                        });
-                      },
-
+                      onTap: () => controller.toggleService(service),
                       child: AnimatedContainer(
                         duration: const Duration(milliseconds: 200),
                         padding: const EdgeInsets.all(12),
                         decoration: BoxDecoration(
-                          color: isSelected ? const Color(0xff01579B) : Colors.white,
+                          color: isSelected
+                              ? const Color(0xff01579B)
+                              : Colors.white,
                           borderRadius: BorderRadius.circular(18),
-                          border: Border.all(
-                            color: Colors.grey.shade300,
-                            width: 1,
-                          ),
+                          border: Border.all(color: Colors.grey.shade300),
                           boxShadow: [
                             BoxShadow(
                               color: Colors.grey.shade200,
@@ -153,17 +129,21 @@ class _BookingScreenState extends State<BookingScreen> {
                           mainAxisAlignment: MainAxisAlignment.center,
                           children: [
                             Icon(
-                              item["icon"],
+                              _mapIcon(service.icon),
                               size: 36,
-                              color: isSelected ? Colors.white : const Color(0xff03A9F4),
+                              color: isSelected
+                                  ? Colors.white
+                                  : const Color(0xff03A9F4),
                             ),
                             const SizedBox(height: 8),
                             Text(
-                              item["name"],
+                              service.category,
                               textAlign: TextAlign.center,
                               style: GoogleFonts.poppins(
                                 fontSize: 12,
-                                color: isSelected ? Colors.white : Colors.black87,
+                                color: isSelected
+                                    ? Colors.white
+                                    : Colors.black87,
                                 fontWeight: FontWeight.w500,
                               ),
                             ),
@@ -172,49 +152,73 @@ class _BookingScreenState extends State<BookingScreen> {
                       ),
                     );
                   },
-                ),
-              ),
+                );
+              }),
             ),
 
-            // NEXT BUTTON
+            // ---------------- TOTAL + NEXT BUTTON ----------------
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
-              child: SizedBox(
-                width: double.infinity,
-                height: 54,
-                child: ElevatedButton(
-                  onPressed: selectedIndexes.isEmpty
-                      ? null
-                      : () {
-                    Get.to(() => const PersonalInfoScreen()); // ← REPLACED WITH GETX
-                  },
+              child: Obx(
+                    () => Column(
+                  children: [
+                    // 💰 TOTAL PRICE
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Text(
+                          "Total",
+                          style: GoogleFonts.poppins(
+                            fontSize: 16,
+                            fontWeight: FontWeight.w500,
+                          ),
+                        ),
+                        Text(
+                          "Rs ${controller.totalPrice.value}",
+                          style: GoogleFonts.poppins(
+                            fontSize: 18,
+                            fontWeight: FontWeight.w600,
+                          ),
+                        ),
+                      ],
+                    ),
 
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: const Color(0xFF03A9F4),
-                    foregroundColor: Colors.white,
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(14),
-                    ),
-                  ).copyWith(
-                    overlayColor: MaterialStateProperty.all(
-                      const Color(0xff01579B).withOpacity(0.3),
-                    ),
-                    backgroundColor: MaterialStateProperty.resolveWith((states) {
-                      if (states.contains(MaterialState.pressed)) {
-                        return const Color(0xff01579B);
-                      }
-                      return const Color(0xFF03A9F4);
-                    }),
-                  ),
+                    const SizedBox(height: 10),
 
-                  child: Text(
-                    "Next",
-                    style: GoogleFonts.poppins(
-                      fontSize: 16,
-                      color: Colors.white,
-                      fontWeight: FontWeight.w500,
+                    SizedBox(
+                      width: double.infinity,
+                      height: 54,
+                      child: ElevatedButton(
+                        onPressed: controller.selectedServices.isEmpty
+                            ? null
+                            : () {
+                          Get.to(
+                                () => const PersonalInfoScreen(),
+                            arguments: {
+                              'selectedServices':
+                              controller.selectedServices.toList(),
+                              'totalPrice':
+                              controller.totalPrice.value,
+                              'mainType': mainType,
+                            },
+                          );
+                        },
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: const Color(0xFF03A9F4),
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(14),
+                          ),
+                        ),
+                        child: const Text(
+                          "Next",
+                          style: TextStyle(
+                            fontSize: 16,
+                            color: Colors.white,
+                          ),
+                        ),
+                      ),
                     ),
-                  ),
+                  ],
                 ),
               ),
             ),
@@ -222,5 +226,23 @@ class _BookingScreenState extends State<BookingScreen> {
         ),
       ),
     );
+  }
+
+  // 🔵 ICON STRING → ICONDATA
+  IconData _mapIcon(String iconName) {
+    switch (iconName) {
+      case 'cleaning_services':
+        return Icons.cleaning_services;
+      case 'sanitizer':
+        return Icons.sanitizer;
+      case 'blinds':
+        return Icons.blinds;
+      case 'curtains':
+        return Icons.curtains;
+      case 'bathroom':
+        return Icons.bathroom;
+      default:
+        return Icons.cleaning_services;
+    }
   }
 }

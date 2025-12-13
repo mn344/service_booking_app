@@ -18,7 +18,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
       "image": "assets/images/onboarding1.jpg",
       "title": "Book Appointments Easily",
       "subtitle":
-      "Schedule your services quickly and manage all your bookings in one place."
+      "Schedule your services quickly and manage all your booking in one place."
     },
     {
       "image": "assets/images/onboarding2.jpg",

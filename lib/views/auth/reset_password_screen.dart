@@ -3,15 +3,17 @@ import 'package:get/get.dart';
 import 'package:google_fonts/google_fonts.dart';
 import '../../viewmodels/auth/reset_password_view_model.dart';
 
-class ResetPasswordScreen extends StatelessWidget {
+class ResetPasswordScreen extends GetView<ResetPasswordViewModel> {
   ResetPasswordScreen({super.key});
 
-  final ResetPasswordViewModel vm = Get.find();
+  // ✅ UI controller (allowed)
+  final TextEditingController emailController = TextEditingController();
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: Colors.white,
+
       appBar: AppBar(
         elevation: 0,
         backgroundColor: Colors.white,
@@ -28,86 +30,69 @@ class ResetPasswordScreen extends StatelessWidget {
             color: Colors.black87,
           ),
         ),
-        centerTitle: false,
       ),
+
       body: SafeArea(
         child: Padding(
           padding: const EdgeInsets.all(20),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
+
               Text(
                 "Enter your registered email to receive password reset instructions.",
                 style: GoogleFonts.poppins(
                   fontSize: 14,
-                  fontWeight: FontWeight.bold,
-                  color: Colors.black,
+                  fontWeight: FontWeight.w500,
                 ),
               ),
+
               const SizedBox(height: 30),
 
-              // Email Input Field
+              // EMAIL FIELD
               TextField(
-                controller: vm.emailController,
+                controller: emailController,
                 keyboardType: TextInputType.emailAddress,
                 decoration: InputDecoration(
                   hintText: "Email",
-                  hintStyle: GoogleFonts.poppins(fontSize: 14),
-                  contentPadding: const EdgeInsets.symmetric(
-                      horizontal: 15, vertical: 16),
                   border: OutlineInputBorder(
                     borderRadius: BorderRadius.circular(12),
-                    borderSide: BorderSide(color: Colors.grey.shade300),
-                  ),
-                  enabledBorder: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(12),
-                    borderSide: BorderSide(color: Colors.grey.shade400),
-                  ),
-                  focusedBorder: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(12),
-                    borderSide:
-                    const BorderSide(color: Colors.blue, width: 1.5),
                   ),
                 ),
               ),
+
               const SizedBox(height: 30),
 
-              // Submit Button with Loader
+              // BUTTON
               Obx(
                     () => SizedBox(
                   width: double.infinity,
                   height: 52,
                   child: ElevatedButton(
-                    onPressed: vm.isLoading.value
+                    onPressed: controller.isLoading.value
                         ? null
                         : () async {
-                      await vm.sendResetLink();
+                      try {
+                        await controller.sendResetLink(
+                          emailController.text,
+                        );
+
+                        Get.snackbar(
+                          "Success",
+                          "Reset link sent to your email",
+                        );
+                      } catch (e) {
+                        Get.snackbar(
+                          "Error",
+                          e.toString(),
+                        );
+                      }
                     },
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: Colors.blue,
-                      disabledBackgroundColor: Colors.blue.withOpacity(0.5),
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(30),
-                      ),
-                      elevation: 2,
-                    ),
-                    child: vm.isLoading.value
-                        ? const SizedBox(
-                      height: 20,
-                      width: 20,
-                      child: CircularProgressIndicator(
-                        strokeWidth: 2,
-                        color: Colors.lightBlue,
-                      ),
+                    child: controller.isLoading.value
+                        ? const CircularProgressIndicator(
+                      color: Colors.white,
                     )
-                        : Text(
-                      "Send Reset Link",
-                      style: GoogleFonts.poppins(
-                        fontSize: 16,
-                        fontWeight: FontWeight.w600,
-                        color: Colors.white,
-                      ),
-                    ),
+                        : const Text("Send Reset Link"),
                   ),
                 ),
               ),

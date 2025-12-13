@@ -1,225 +1,95 @@
 import 'package:flutter/material.dart';
-import 'package:google_fonts/google_fonts.dart';
-import 'package:service_booking_app/views/customer/booking_detail_screen.dart';
+import 'package:get/get.dart';
 
-class ProviderListScreen extends StatefulWidget {
-  final String userName;
-  final String contact;
-  final String location;
-  final String jobType;
-  final String projectLength;
+import '../../viewmodels/provider_viewmodel.dart';
+import '../customer/booking_detail_screen.dart';
+
+class ProviderListScreen extends StatelessWidget {
+  final String name;
+  final String phone;
+  final String address;
+  final String mainType;
+  final int totalPrice;
+  final List services; // CleaningServiceModel list
 
   const ProviderListScreen({
     super.key,
-    required this.userName,
-    required this.contact,
-    required this.location,
-    required this.jobType,
-    required this.projectLength,
+    required this.name,
+    required this.phone,
+    required this.address,
+    required this.mainType,
+    required this.totalPrice,
+    required this.services,
   });
 
   @override
-  State<ProviderListScreen> createState() => _ProviderListScreenState();
-}
-
-class _ProviderListScreenState extends State<ProviderListScreen> {
-  int? selectedIndex;
-
-  // Provider list
-  final List<Map<String, dynamic>> providers = [
-    {
-      "name": "Sofa Cleaning Expert",
-      "price": "₹ 800",
-      "rating": "4.3",
-      "img": "assets/images/sofa_cleaner.png"
-    },
-    {
-      "name": "Deep Cleaning Service",
-      "price": "₹ 950",
-      "rating": "4.5",
-      "img": "assets/images/deep_cleaner.png"
-    },
-    {
-      "name": "Bathroom Cleaner",
-      "price": "₹ 700",
-      "rating": "4.2",
-      "img": "assets/images/bathroom_cleaner.png"
-    },
-    {
-      "name": "Chimney Cleaner",
-      "price": "₹ 850",
-      "rating": "4.4",
-      "img": "assets/images/chimny_cleaner.png"
-    },
-  ];
-
-  @override
   Widget build(BuildContext context) {
+    final ProviderViewModel vm = Get.find<ProviderViewModel>();
+
     return Scaffold(
-      backgroundColor: Colors.white,
-
-      // ---------------- APPBAR ----------------
       appBar: AppBar(
-        backgroundColor: Colors.white,
-        elevation: 0,
-        centerTitle: false,
-        title: Text(
-          "Provider List",
-          style: GoogleFonts.poppins(
-            fontSize: 24,
-            fontWeight: FontWeight.w600,
-            color: Colors.black,
-          ),
-        ),
-        iconTheme: const IconThemeData(
-          color: Colors.black,
-        ),
+        title: const Text("Select Provider"),
       ),
-      // -------------------------------------------------
 
-      body: ListView.builder(
+      body: Obx(() => ListView.builder(
         padding: const EdgeInsets.all(12),
-        itemCount: providers.length,
+        itemCount: vm.providers.length,
         itemBuilder: (context, index) {
-          final provider = providers[index];
-          bool isSelected = selectedIndex == index;
+          final provider = vm.providers[index];
+          final isSelected = vm.selectedIndex.value == index;
 
-          return GestureDetector(
-            onTap: () {
-              setState(() {
-                selectedIndex = index;
-              });
-            },
-            child: Container(
-              margin: const EdgeInsets.only(bottom: 12),
-              padding: const EdgeInsets.all(12),
-              decoration: BoxDecoration(
-                color: isSelected ? Colors.blue.shade50 : Colors.white,
-                borderRadius: BorderRadius.circular(12),
-                border: Border.all(
-                  color: isSelected ? Colors.blue : Colors.grey.shade300,
-                  width: 2,
-                ),
-                boxShadow: const [
-                  BoxShadow(
-                    spreadRadius: 1,
-                    blurRadius: 5,
-                    color: Colors.black12,
-                    offset: Offset(1, 2),
-                  ),
-                ],
+          return Card(
+            margin: const EdgeInsets.only(bottom: 10),
+            child: ListTile(
+              leading: Image.asset(
+                provider.image,
+                width: 45,
+                height: 45,
               ),
-
-              child: Row(
-                children: [
-                  ClipRRect(
-                    borderRadius: BorderRadius.circular(50),
-                    child: Image.asset(
-                      provider["img"],
-                      height: 60,
-                      width: 60,
-                      fit: BoxFit.cover,
-                    ),
-                  ),
-
-                  const SizedBox(width: 12),
-
-                  Expanded(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          provider["name"],
-                          style: const TextStyle(
-                            fontSize: 16,
-                            fontWeight: FontWeight.bold,
-                          ),
-                        ),
-
-                        const SizedBox(height: 4),
-
-                        Text(
-                          "23 April, 2022 11:00 am",
-                          style: TextStyle(
-                            fontSize: 13,
-                            color: Colors.grey.shade600,
-                          ),
-                        ),
-
-                        const SizedBox(height: 8),
-
-                        Row(
-                          children: [
-                            Text(
-                              provider["price"],
-                              style: const TextStyle(
-                                fontSize: 16,
-                                fontWeight: FontWeight.bold,
-                                color: Colors.green,
-                              ),
-                            ),
-                            const Spacer(),
-                            const Icon(Icons.star,
-                                color: Colors.amber, size: 18),
-                            Text(
-                              provider["rating"],
-                              style: const TextStyle(
-                                fontSize: 14,
-                                fontWeight: FontWeight.bold,
-                              ),
-                            ),
-                          ],
-                        )
-                      ],
-                    ),
-                  ),
-                ],
+              title: Text(provider.name),
+              subtitle: Text(provider.price),
+              trailing: Icon(
+                Icons.check_circle,
+                color: isSelected ? Colors.green : Colors.grey,
               ),
+              onTap: () => vm.selectProvider(index),
             ),
           );
         },
-      ),
+      )),
 
-      bottomNavigationBar: Padding(
+      bottomNavigationBar: Obx(() => Padding(
         padding: const EdgeInsets.all(16),
         child: ElevatedButton(
-          onPressed: selectedIndex == null
+          onPressed: vm.selectedProvider == null
               ? null
               : () {
-            final selected = providers[selectedIndex!];
+            final p = vm.selectedProvider!;
 
-            Navigator.push(
-              context,
-              MaterialPageRoute(
-                builder: (_) => BookingDetailScreen(
-                  userName: widget.userName,
-                  contact: widget.contact,
-                  location: widget.location,
-                  jobType: widget.jobType,
-                  projectLength: widget.projectLength,
+            Get.to(
+                  () => BookingDetailScreen(),
+              arguments: {
+                'name': name,
+                'phone': phone,
+                'address': address,
+                'mainType': mainType,
+                'totalPrice': totalPrice,
+                'services': services,
 
-                  providerName: selected["name"],
-                  providerPrice: selected["price"],
-                  providerRating: selected["rating"],
-                  providerImage: selected["img"],
-                ),
-              ),
+                // provider info (optional but useful)
+                'providerName': p.name,
+                'providerPrice': p.price,
+                'providerRating': p.rating,
+                'providerImage': p.image,
+              },
             );
           },
-          style: ElevatedButton.styleFrom(
-            backgroundColor:
-            selectedIndex == null ? Colors.grey : Colors.blue,
-            padding: const EdgeInsets.symmetric(vertical: 16),
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(12),
-            ),
-          ),
           child: const Text(
             "NEXT",
-            style: TextStyle(fontSize: 20, color: Colors.white),
+            style: TextStyle(fontSize: 18),
           ),
         ),
-      ),
+      )),
     );
   }
 }

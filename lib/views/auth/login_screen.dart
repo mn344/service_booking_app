@@ -16,170 +16,164 @@ class LoginScreen extends StatefulWidget {
 
 class _LoginScreenState extends State<LoginScreen> {
 
-  // ⭐ Inject LoginViewModel
-  final LoginViewModel viewModel = Get.put(LoginViewModel());
+  final LoginViewModel viewModel = Get.find<LoginViewModel>();
+
+
+  // ✅ Controllers ONLY in UI
+  final TextEditingController emailController = TextEditingController();
+  final TextEditingController passwordController = TextEditingController();
+
+  @override
+  void dispose() {
+    emailController.dispose();
+    passwordController.dispose();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: Colors.white,
+      resizeToAvoidBottomInset: true,
       body: SafeArea(
-        child: Center(
-          child: ConstrainedBox(
-            constraints: const BoxConstraints(maxWidth: 450),
-            child: Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 20),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
+        child: SingleChildScrollView(
+          child: Center(
+            child: ConstrainedBox(
+              constraints: const BoxConstraints(maxWidth: 450),
+              child: Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 20),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
 
-                  const SizedBox(height: 10),
+                    const SizedBox(height: 10),
 
-                  // TOP IMAGE
-                  Center(
-                    child: Image.asset(
-                      'assets/images/login_illustration.png',
-                      height: 190,
-                      fit: BoxFit.contain,
-                    ),
-                  ),
-
-                  const SizedBox(height: 10),
-
-                  // TITLE
-                  Text(
-                    "Account Log In",
-                    style: GoogleFonts.poppins(
-                      fontSize: 22,
-                      fontWeight: FontWeight.w600,
-                      color: Colors.black87,
-                    ),
-                  ),
-
-                  const SizedBox(height: 3),
-
-                  Text(
-                    "Enter your email & password to continue.",
-                    style: GoogleFonts.poppins(
-                      fontSize: 12.5,
-                      color: Colors.black54,
-                    ),
-                  ),
-
-                  const SizedBox(height: 14),
-
-                  // EMAIL FIELD
-                  TextField(
-                    controller: viewModel.emailController,
-                    decoration: const InputDecoration(labelText: 'Email'),
-                  ),
-
-                  const SizedBox(height: 12),
-
-                  // PASSWORD FIELD
-                  Obx(() {
-                    return TextField(
-                      controller: viewModel.passwordController,
-                      obscureText: !viewModel.isPasswordVisible.value,
-                      decoration: InputDecoration(
-                        labelText: 'Password',
-                        suffixIcon: IconButton(
-                          icon: Icon(
-                            viewModel.isPasswordVisible.value
-                                ? Icons.visibility
-                                : Icons.visibility_off,
-                            color: Colors.blue,
-                          ),
-                          onPressed: () {
-                            viewModel.isPasswordVisible.value =
-                            !viewModel.isPasswordVisible.value;
-                          },
-                        ),
-                      ),
-                    );
-                  }),
-
-                  const SizedBox(height: 18),
-
-                  // LOGIN BUTTON (MVVM)
-                  Obx(() {
-                    return SizedBox(
-                      width: double.infinity,
-                      height: 44,
-                      child: ElevatedButton(
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: Colors.blue,
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(7),
-                          ),
-                        ),
-                        onPressed:
-                        viewModel.isLoading.value ? null : viewModel.login,
-                        child: viewModel.isLoading.value
-                            ? const CircularProgressIndicator(
-                          color: Colors.white,
-                        )
-                            : Text(
-                          "Login",
-                          style: GoogleFonts.poppins(
-                            fontSize: 14.5,
-                            color: Colors.white,
-                            fontWeight: FontWeight.w500,
-                          ),
-                        ),
-                      ),
-                    );
-                  }),
-
-                  const SizedBox(height: 12),
-
-                  // RESET PASSWORD
-                  Center(
-                    child: GestureDetector(
-                      onTap: () => Get.to(() => ResetPasswordScreen()),
-                      child: Text(
-                        "Forgot Password?",
-                        style: GoogleFonts.poppins(
-                          fontSize: 12,
-                          color: Colors.blue,
-                          fontWeight: FontWeight.w600,
-                        ),
+                    Center(
+                      child: Image.asset(
+                        'assets/images/login_illustration.png',
+                        height: 190,
                       ),
                     ),
-                  ),
 
-                  const SizedBox(height: 8),
+                    const SizedBox(height: 10),
 
-                  // REGISTER BUTTON
-                  Center(
-                    child: TextButton(
-                      onPressed: () {
-                        Get.to(() => const RegisterScreen(userType: "user"));
-                      },
-                      child: RichText(
-                        text: const TextSpan(
-                          text: "Don't have an account? ",
-                          style: TextStyle(
-                            color: Colors.black,
-                            fontSize: 12,
-                            fontWeight: FontWeight.w600,
-                          ),
-                          children: <TextSpan>[
-                            TextSpan(
-                              text: "Register here",
-                              style: TextStyle(
-                                color: Colors.blue,
-                                fontSize: 12,
-                                fontWeight: FontWeight.w600,
-                              ),
+                    Text(
+                      "Account Log In",
+                      style: GoogleFonts.poppins(
+                        fontSize: 22,
+                        fontWeight: FontWeight.w600,
+                      ),
+                    ),
+
+                    Text(
+                      "Enter your email & password to continue.",
+                      style: GoogleFonts.poppins(
+                        fontSize: 12.5,
+                        color: Colors.black54,
+                      ),
+                    ),
+
+                    const SizedBox(height: 14),
+
+                    // EMAIL
+                    TextField(
+                      controller: emailController,
+                      keyboardType: TextInputType.emailAddress,
+                      decoration: const InputDecoration(
+                        labelText: 'Email',
+                      ),
+                    ),
+
+                    const SizedBox(height: 12),
+
+                    // PASSWORD
+                    Obx(() {
+                      return TextField(
+                        controller: passwordController,
+                        obscureText: !viewModel.isPasswordVisible.value,
+                        decoration: InputDecoration(
+                          labelText: 'Password',
+                          suffixIcon: IconButton(
+                            icon: Icon(
+                              viewModel.isPasswordVisible.value
+                                  ? Icons.visibility
+                                  : Icons.visibility_off,
                             ),
-                          ],
+                            onPressed: () {
+                              viewModel.isPasswordVisible.toggle();
+                            },
+                          ),
+                        ),
+                      );
+                    }),
+
+                    const SizedBox(height: 18),
+
+                    // ✅ LOGIN BUTTON (CORRECT)
+                    Obx(() {
+                      return SizedBox(
+                        width: double.infinity,
+                        height: 44,
+                        child: ElevatedButton(
+                          onPressed: viewModel.isLoading.value
+                              ? null
+                              : () async {
+                            try {
+                              // 🔹 Call ViewModel
+                              final role = await viewModel.login(
+                                emailController.text.trim(),
+                                passwordController.text.trim(),
+                              );
+
+                              // 🔹 Navigation in VIEW
+                              if (role == 'provider') {
+                                Get.offAllNamed('/providerHome');
+                              } else {
+                                Get.offAllNamed('/home');
+                              }
+
+                            } catch (e) {
+                              Get.snackbar(
+                                "Login Failed",
+                                e.toString(),
+                              );
+                            }
+                          },
+                          child: viewModel.isLoading.value
+                              ? const CircularProgressIndicator(
+                            color: Colors.white,
+                          )
+                              : const Text("Login"),
+                        ),
+                      );
+                    }),
+
+                    const SizedBox(height: 12),
+
+                    Center(
+                      child: GestureDetector(
+                        onTap: () =>
+                            Get.to(() =>  ResetPasswordScreen()),
+                        child: const Text(
+                          "Forgot Password?",
+                          style: TextStyle(color: Colors.blue),
                         ),
                       ),
                     ),
-                  ),
 
-                ],
+                    Center(
+                      child: TextButton(
+                        onPressed: () {
+                          Get.to(() =>
+                              RegisterScreen(userType: widget.userType));
+                        },
+                        child: const Text(
+                          "Don't have an account? Register",
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
               ),
             ),
           ),

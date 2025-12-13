@@ -1,52 +1,94 @@
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 
 class AuthRepository {
   final FirebaseAuth _auth = FirebaseAuth.instance;
+  final FirebaseFirestore _firestore = FirebaseFirestore.instance;
 
-  // ----------------------------
-  // LOGIN
-  // ----------------------------
-  Future<void> login(String email, String password) async {
-    await _auth.signInWithEmailAndPassword(
-      email: email,
-      password: password,
+  // ---------------- LOGIN ----------------
+  Future<UserCredential> login(String email, String password) async {
+    return await _auth.signInWithEmailAndPassword(
+      email: email.trim().toLowerCase(), // 🔴 normalize email
+      password: password.trim(),
     );
   }
 
-  // ----------------------------
-  // REGISTER
-  // ----------------------------
-  Future<void> register(String email, String password) async {
-    await _auth.createUserWithEmailAndPassword(
-      email: email,
-      password: password,
+  // ---------------- REGISTER ----------------
+  Future<UserCredential> register(String email, String password) async {
+    return await _auth.createUserWithEmailAndPassword(
+      email: email.trim().toLowerCase(), // 🔴 normalize email
+      password: password.trim(),
     );
   }
 
-  // ----------------------------
-  // EMAIL VERIFICATION
-  // ----------------------------
+  // ---------------- SAVE USER DATA ----------------
+  Future<void> saveUserToFirestore({
+    required String uid,
+    required String email,
+    required String role,
+  }) async {
+    await _firestore.collection("users").doc(uid).set({
+      "email": email.trim().toLowerCase(), // 🔴 normalize email
+      "role": role,
+      "createdAt": FieldValue.serverTimestamp(),
+    });
+  }
+
+  // 🔴 NEW: CHECK USER PROFILE EXISTS
+  Future<bool> doesUserProfileExist(String uid) async {
+    final doc =
+    await _firestore.collection("users").doc(uid).get();
+    return doc.exists;
+  }
+
+  // 🔴 NEW: AUTO CREATE PROFILE IF MISSING (LOGIN SAFETY)
+  Future<void> createProfileIfMissing({
+    required String uid,
+    required String email,
+  }) async {
+    final exists = await doesUserProfileExist(uid);
+
+    if (!exists) {
+      await saveUserToFirestore(
+        uid: uid,
+        email: email,
+        role: "user", // default role
+      );
+    }
+  }
+
+  // ---------------- EMAIL VERIFICATION ----------------
   Future<void> sendEmailVerification() async {
-    await _auth.currentUser?.sendEmailVerification();
+    final user = _auth.currentUser;
+    if (user != null && !user.emailVerified) {
+      await user.sendEmailVerification();
+    }
   }
 
-  // ----------------------------
-  // RESET PASSWORD
-  // ----------------------------
+  bool isEmailVerified() {
+    final user = _auth.currentUser;
+    return user?.emailVerified ?? false;
+  }
+
+  // ---------------- RESET PASSWORD ----------------
   Future<void> resetPassword(String email) async {
-    await _auth.sendPasswordResetEmail(email: email);
+    await _auth.sendPasswordResetEmail(
+      email: email.trim().toLowerCase(), // 🔴 normalize email
+    );
   }
 
-  // ----------------------------
-  // CHANGE PASSWORD
-  // ----------------------------
-  Future<void> changePassword(
-      {required String oldPass, required String newPass}) async {
-    User? user = _auth.currentUser;
+  // ---------------- CHANGE PASSWORD ----------------
+  Future<void> changePassword({
+    required String oldPass,
+    required String newPass,
+  }) async {
+    final user = _auth.currentUser;
 
-    if (user == null) throw FirebaseAuthException(code: "no-user");
+    if (user == null || user.email == null) {
+      throw Exception("User not logged in");
+    }
 
-    AuthCredential credential = EmailAuthProvider.credential(
+    final credential = EmailAuthProvider.credential(
       email: user.email!,
       password: oldPass,
     );
@@ -55,17 +97,8 @@ class AuthRepository {
     await user.updatePassword(newPass);
   }
 
-  // ----------------------------
-  // LOGOUT
-  // ----------------------------
+  // ---------------- LOGOUT ----------------
   Future<void> logout() async {
     await _auth.signOut();
-  }
-
-  // ----------------------------
-  // CHECK EMAIL VERIFIED
-  // ----------------------------
-  bool isEmailVerified() {
-    return _auth.currentUser?.emailVerified ?? false;
   }
 }

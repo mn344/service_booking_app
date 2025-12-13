@@ -1,32 +1,31 @@
-import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import '../../../../data/repositories/auth_repository.dart';
 
 class ResetPasswordViewModel extends GetxController {
-  final emailController = TextEditingController();
-  final isLoading = false.obs;
-
+  final RxBool isLoading = false.obs;
   final AuthRepository _repo = AuthRepository();
 
-  Future<void> sendResetLink() async {
-    final email = emailController.text.trim();
+  /// Sends password reset email
+  /// Throws String on validation / error
+  Future<void> sendResetLink(String email) async {
+    final String trimmedEmail = email.trim();
 
-    if (email.isEmpty) {
-      Get.snackbar("Error", "Email cannot be empty");
-      return;
+    // Validation
+    if (trimmedEmail.isEmpty) {
+      throw "Email cannot be empty";
+    }
+
+    if (!GetUtils.isEmail(trimmedEmail)) {
+      throw "Enter a valid email address";
     }
 
     try {
-      isLoading(true);
-
-      await _repo.resetPassword(email);
-
-      Get.snackbar("Success", "Password reset email sent");
-
+      isLoading.value = true;
+      await _repo.resetPassword(trimmedEmail);
     } catch (e) {
-      Get.snackbar("Error", e.toString());
+      throw e.toString();
     } finally {
-      isLoading(false);
+      isLoading.value = false;
     }
   }
 }

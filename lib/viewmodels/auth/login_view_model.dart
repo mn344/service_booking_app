@@ -1,40 +1,57 @@
-import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import '../../../../data/repositories/auth_repository.dart';
 
 class LoginViewModel extends GetxController {
-  final emailController = TextEditingController();
-  final passwordController = TextEditingController();
-
   final isLoading = false.obs;
   final isPasswordVisible = false.obs;
 
   final AuthRepository _repo = AuthRepository();
 
-  Future<void> login() async {
-    final email = emailController.text.trim();
-    final password = passwordController.text.trim();
-
+  Future<String> login(String email, String password) async {
     if (email.isEmpty || password.isEmpty) {
-      Get.snackbar("Error", "Email and password cannot be empty");
-      return;
+      throw "Email and password cannot be empty";
     }
 
     try {
       isLoading(true);
 
-      await _repo.login(email, password);
+      final userCredential = await _repo.login(email, password);
+      final user = userCredential.user;
 
-      if (!_repo.isEmailVerified()) {
-        Get.snackbar("Email Verification", "Please verify your email first.");
-        return;
+      if (user == null) {
+        throw "Login failed";
       }
 
-      Get.snackbar("Success", "Login Successful");
-      Get.offAllNamed('/home');
+      await user.reload();
+      final refreshedUser = FirebaseAuth.instance.currentUser;
 
-    } catch (e) {
-      Get.snackbar("Login Failed", e.toString());
+      if (refreshedUser == null || !refreshedUser.emailVerified) {
+        await _repo.logout();
+        throw "Please verify your email before login";
+      }
+
+      final snap = await FirebaseFirestore.instance
+          .collection("users")
+          .doc(refreshedUser.uid)
+          .get();
+
+      if (!snap.exists) {
+        throw "User profile not found";
+      }
+
+      final String? role = snap.data()?['role'] as String?;
+
+      if (role == null) {
+        throw "Role not assigned";
+      }
+
+      if (role != 'user' && role != 'provider') {
+        throw "Invalid role assigned";
+      }
+
+      return role;
     } finally {
       isLoading(false);
     }

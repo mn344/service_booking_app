@@ -15,7 +15,8 @@ class RegisterScreen extends StatefulWidget {
 class _RegisterScreenState extends State<RegisterScreen> {
 
   // ⭐ Inject ViewModel
-  final RegisterViewModel viewModel = Get.put(RegisterViewModel());
+  final RegisterViewModel viewModel = Get.find();
+
 
   bool showPassword = false;
 
@@ -110,7 +111,8 @@ class _RegisterScreenState extends State<RegisterScreen> {
                       ),
                     ),
                     onPressed:
-                    viewModel.isLoading.value ? null : viewModel.register,
+                    viewModel.isLoading.value ? null : () => viewModel.register(widget.userType),
+
 
                     child: viewModel.isLoading.value
                         ? const CircularProgressIndicator(color: Colors.white)
