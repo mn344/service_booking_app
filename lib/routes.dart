@@ -27,6 +27,10 @@ import 'views/customer/booking_detail_screen.dart';
 
 // 🔹 PROVIDER SCREENS
 import 'views/provider/provider_home_screen.dart';
+import 'views/provider/provider_manage_services_screen.dart';
+import 'views/provider/provider_add_update_service_screen.dart';
+import 'bindings/provider_service_binding.dart';
+
 
 class Routes {
   static const splash = '/';
@@ -48,6 +52,8 @@ class Routes {
 
   // 🧑‍🔧 PROVIDER
   static const providerHome = '/providerHome';
+  static const providerManageServices = '/providerManageServices';
+  static const providerAddUpdateServices = '/providerAddUpdateServices';
 }
 
 class AppPages {
@@ -106,18 +112,7 @@ class AppPages {
     ),
     GetPage(
       name: Routes.providerList,
-      page: () {
-        final args = Get.arguments as Map<String, dynamic>? ?? {};
-
-        return ProviderListScreen(
-          name: args['name'] ?? '',
-          phone: args['phone'] ?? '',
-          address: args['address'] ?? '',
-          mainType: args['mainType'] ?? '',
-          totalPrice: args['totalPrice'] ?? 0,
-          services: args['services'] ?? [],
-        );
-      },
+      page: () => ProviderListScreen(),
       binding: ProviderBinding(),
     ),
 
@@ -131,6 +126,17 @@ class AppPages {
     GetPage(
       name: Routes.providerHome,
       page: () =>  ProviderHomeScreen(),
+    ),
+
+    GetPage(
+      name: Routes.providerManageServices,
+      page: () => const ProviderManageServicesScreen(),
+      binding: ProviderServiceBinding(),
+    ),
+
+    GetPage(
+      name: Routes.providerAddUpdateServices,
+      page: () => const AddUpdateServiceScreen(),
     ),
   ];
 }

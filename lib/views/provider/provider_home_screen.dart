@@ -1,5 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:service_booking_app/views/provider/provider_manage_services_screen.dart';
+import '../../routes.dart';
+
 
 // PROVIDER SCREENS
 import 'package:service_booking_app/views/provider/provider_job_detail_screen.dart';
@@ -220,6 +223,7 @@ class ProviderDrawer extends StatelessWidget {
       child: SingleChildScrollView(
         child: Column(
           children: [
+            // ================= HEADER =================
             Stack(
               children: [
                 Container(
@@ -241,17 +245,18 @@ class ProviderDrawer extends StatelessWidget {
                       ),
                       Text(
                         "john@mail.com",
-                        style: TextStyle(fontSize: 14, color: Colors.white70),
+                        style:
+                        TextStyle(fontSize: 14, color: Colors.white70),
                       ),
                     ],
                   ),
                 ),
-
                 Positioned(
                   right: 10,
                   top: 10,
                   child: GestureDetector(
                     onTap: () {
+                      Get.back();
                       Get.to(() => const ProviderEditProfileScreen());
                     },
                     child: const Icon(
@@ -266,40 +271,68 @@ class ProviderDrawer extends StatelessWidget {
 
             const SizedBox(height: 10),
 
+            // ================= DRAWER ITEMS =================
+
             _drawerItem(
               Icons.home_outlined,
               "Home",
-                  () => Get.back(),
+                  () {
+                Get.back();
+              },
             ),
 
             _drawerItem(
               Icons.work_outline,
               "Job Details",
-                  () => Get.to(() => const ProviderJobDetailScreen()),
+                  () {
+                Get.back();
+                Get.to(() => const ProviderJobDetailScreen());
+              },
             ),
 
             _drawerItem(
               Icons.assignment_outlined,
               "Bookings",
-                  () => Get.to(() => const ProviderBookingsScreen()),
+                  () {
+                Get.back();
+                Get.to(() => const ProviderBookingsScreen());
+              },
             ),
 
             _drawerItem(
               Icons.category_outlined,
               "Add & Update Category",
-                  () => Get.to(() => const ProviderUpdateCategoryScreen()),
+                  () {
+                Get.back();
+                Get.to(() => const ProviderUpdateCategoryScreen());
+              },
+            ),
+
+            // ✅ ALREADY CORRECT (kept same)
+            _drawerItem(
+              Icons.design_services_outlined,
+              "Manage Services",
+                  () {
+                Get.back();
+                Get.toNamed(Routes.providerManageServices);
+              },
             ),
 
             _drawerItem(
-              Icons.assignment_outlined,
+              Icons.chat_outlined,
               "Chat List",
-                  () => Get.to(() => const ProviderChatListScreen()),
+                  () {
+                Get.back();
+                Get.to(() => const ProviderChatListScreen());
+              },
             ),
 
             _drawerItem(
               Icons.help_outline,
               "Help & Support",
-                  () {},
+                  () {
+                Get.back();
+              },
             ),
           ],
         ),
@@ -307,6 +340,9 @@ class ProviderDrawer extends StatelessWidget {
     );
   }
 }
+
+
+
 
 Widget _drawerItem(IconData icon, String text, VoidCallback onTap) {
   return ListTile(
