@@ -55,7 +55,7 @@ class _HomeScreenState extends State<HomeScreen> {
                     crossAxisCount: 2,
                     mainAxisSpacing: 12,
                     crossAxisSpacing: 12,
-                    childAspectRatio: 1.25,
+                    childAspectRatio: 0.9,
                   ),
                   itemBuilder: (context, index) {
                     final service = controller.services[index];

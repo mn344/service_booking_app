@@ -24,6 +24,11 @@ dependencies:
   google_fonts: ^6.0.0
   fluttertoast: ^8.2.4
 
+  # Image Picker & Upload
+  image_picker: ^1.0.7
+  http: ^1.2.0
+  cloudinary_sdk: ^5.0.0+1
+
 dev_dependencies:
   flutter_test:
     sdk: flutter

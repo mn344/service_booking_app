@@ -1,19 +1,22 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:service_booking_app/views/provider/provider_manage_services_screen.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
+import '../auth/change_password_screen.dart';
+// ROUTES
 import '../../routes.dart';
 
-
 // PROVIDER SCREENS
-import 'package:service_booking_app/views/provider/provider_job_detail_screen.dart';
-import 'package:service_booking_app/views/provider/provider_edit_profile_screen.dart';
-import 'package:service_booking_app/views/provider/provider_update_category_screen.dart';
-import 'package:service_booking_app/views/provider/chat/provider_chat_list_screen.dart';
-import 'package:service_booking_app/views/provider/provider_bookings_screen.dart';
+import 'provider_job_detail_screen.dart';
+import 'provider_edit_profile_screen.dart';
+import 'provider_update_category_screen.dart';
+import 'provider_bookings_screen.dart';
+import 'chat/provider_chat_list_screen.dart';
 
 class ProviderHomeScreen extends StatelessWidget {
   ProviderHomeScreen({super.key});
 
+  // ================= STATIC PROVIDER JOBS =================
   final List<Map<String, dynamic>> providerJobs = const [
     {
       "name": "Sofa Cleaning Expert",
@@ -43,33 +46,38 @@ class ProviderHomeScreen extends StatelessWidget {
     return Scaffold(
       backgroundColor: Colors.white,
 
+      // ================= DRAWER =================
       drawer: const ProviderDrawer(),
 
+      // ================= APPBAR =================
       appBar: AppBar(
         backgroundColor: const Color(0xFF06BEE1),
         elevation: 0,
-        automaticallyImplyLeading: false,
-        title: const Text(
-          "Hello Jonathen James",
-          style: TextStyle(color: Colors.white, fontSize: 20),
-        ),
         centerTitle: true,
-        leading: Builder(
-          builder: (context) {
-            return IconButton(
-              icon: const Icon(Icons.menu, color: Colors.white),
-              onPressed: () => Scaffold.of(context).openDrawer(),
+        title: StreamBuilder<DocumentSnapshot>(
+          stream: FirebaseFirestore.instance
+              .collection('users')
+              .doc(FirebaseAuth.instance.currentUser!.uid)
+              .snapshots(),
+          builder: (context, snapshot) {
+            final data = snapshot.data?.data() as Map<String, dynamic>?;
+            final name = data?['name'] ?? "Provider";
+
+            return Text(
+              "Hello $name",
+              style: const TextStyle(color: Colors.white, fontSize: 20),
             );
           },
         ),
-        actions: const [
-          Padding(
-            padding: EdgeInsets.only(right: 12),
-            child: Icon(Icons.notifications, color: Colors.white),
+        leading: Builder(
+          builder: (context) => IconButton(
+            icon: const Icon(Icons.menu, color: Colors.white),
+            onPressed: () => Scaffold.of(context).openDrawer(),
           ),
-        ],
+        ),
       ),
 
+      // ================= BODY (STATIC JOBS) =================
       body: Column(
         children: [
           Padding(
@@ -80,11 +88,7 @@ class ProviderHomeScreen extends StatelessWidget {
                 color: Colors.white,
                 borderRadius: BorderRadius.circular(14),
                 boxShadow: const [
-                  BoxShadow(
-                    color: Colors.black12,
-                    blurRadius: 6,
-                    offset: Offset(0, 3),
-                  )
+                  BoxShadow(color: Colors.black12, blurRadius: 6),
                 ],
               ),
               child: const TextField(
@@ -111,11 +115,7 @@ class ProviderHomeScreen extends StatelessWidget {
                     color: Colors.white,
                     borderRadius: BorderRadius.circular(14),
                     boxShadow: const [
-                      BoxShadow(
-                        color: Colors.black12,
-                        blurRadius: 6,
-                        offset: Offset(0, 3),
-                      )
+                      BoxShadow(color: Colors.black12, blurRadius: 6),
                     ],
                   ),
                   child: Row(
@@ -130,9 +130,7 @@ class ProviderHomeScreen extends StatelessWidget {
                           fit: BoxFit.cover,
                         ),
                       ),
-
                       const SizedBox(width: 12),
-
                       Expanded(
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
@@ -140,63 +138,41 @@ class ProviderHomeScreen extends StatelessWidget {
                             Text(
                               job["name"],
                               style: const TextStyle(
-                                  fontSize: 16, fontWeight: FontWeight.bold),
+                                  fontSize: 16,
+                                  fontWeight: FontWeight.bold),
                             ),
                             const SizedBox(height: 4),
                             Text(
                               job["address"],
-                              style: const TextStyle(
-                                  fontSize: 13, color: Colors.grey),
+                              style: const TextStyle(color: Colors.grey),
                             ),
                             const SizedBox(height: 6),
                             Text(
                               job["date"],
-                              style: const TextStyle(
-                                  fontSize: 13, color: Colors.blue),
+                              style: const TextStyle(color: Colors.blue),
                             ),
                             const SizedBox(height: 8),
-
                             Row(
                               children: [
                                 Text(
                                   job["price"],
                                   style: const TextStyle(
-                                    fontSize: 18,
-                                    fontWeight: FontWeight.bold,
-                                    color: Colors.purple,
-                                  ),
+                                      fontSize: 18,
+                                      fontWeight: FontWeight.bold),
                                 ),
                                 const Spacer(),
-
-                                IconButton(
-                                  icon: const Icon(Icons.call, color: Colors.blue),
-                                  onPressed: () {},
-                                ),
-                                IconButton(
-                                  icon: const Icon(Icons.chat, color: Colors.blue),
-                                  onPressed: () {},
-                                ),
-
                                 ElevatedButton(
-                                  style: ElevatedButton.styleFrom(
-                                    backgroundColor: Colors.deepPurple.shade100,
-                                    elevation: 0,
-                                    padding: const EdgeInsets.symmetric(
-                                        horizontal: 16, vertical: 8),
-                                  ),
                                   onPressed: () {
-                                    Get.to(() => const ProviderJobDetailScreen());
+                                    Get.to(
+                                            () => const ProviderJobDetailScreen());
                                   },
-                                  child: const Text(
-                                    "Details",
-                                    style: TextStyle(color: Colors.black),
-                                  ),
-                                ),
+                                  child: const Text("Details"),
+                                )
                               ],
                             )
                           ],
                         ),
-                      ),
+                      )
                     ],
                   ),
                 );
@@ -209,145 +185,110 @@ class ProviderHomeScreen extends StatelessWidget {
   }
 }
 
-// ====================================================
-// PROVIDER DRAWER — UPDATED TO GETX ✔
-// ====================================================
+// =======================================================
+// PROVIDER DRAWER (DYNAMIC – FIRESTORE)
+// =======================================================
 
 class ProviderDrawer extends StatelessWidget {
   const ProviderDrawer({super.key});
 
   @override
   Widget build(BuildContext context) {
+    final uid = FirebaseAuth.instance.currentUser!.uid;
+
     return Drawer(
       backgroundColor: Colors.white,
-      child: SingleChildScrollView(
-        child: Column(
-          children: [
-            // ================= HEADER =================
-            Stack(
-              children: [
-                Container(
-                  width: double.infinity,
-                  padding: const EdgeInsets.all(20),
-                  color: const Color(0xFF2A2D52),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: const [
-                      CircleAvatar(
-                        radius: 40,
-                        backgroundImage:
-                        AssetImage("assets/images/bathroom_cleaner.png"),
-                      ),
-                      SizedBox(height: 10),
-                      Text(
-                        "Jonathan",
-                        style: TextStyle(fontSize: 20, color: Colors.white),
-                      ),
-                      Text(
-                        "john@mail.com",
-                        style:
-                        TextStyle(fontSize: 14, color: Colors.white70),
-                      ),
-                    ],
-                  ),
-                ),
-                Positioned(
-                  right: 10,
-                  top: 10,
-                  child: GestureDetector(
-                    onTap: () {
-                      Get.back();
-                      Get.to(() => const ProviderEditProfileScreen());
-                    },
-                    child: const Icon(
-                      Icons.edit,
-                      size: 22,
-                      color: Colors.white,
+      child: StreamBuilder<DocumentSnapshot>(
+        stream: FirebaseFirestore.instance
+            .collection('users')
+            .doc(uid)
+            .snapshots(),
+        builder: (context, snapshot) {
+          final data = snapshot.data?.data() as Map<String, dynamic>?;
+
+          final name = data?['name'] ?? "Provider";
+          final email = data?['email'] ?? "";
+          final imageUrl = data?['profileImageUrl'];
+
+          return ListView(
+            children: [
+              DrawerHeader(
+                decoration:
+                const BoxDecoration(color: Color(0xFF2A2D52)),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    CircleAvatar(
+                      radius: 35,
+                      backgroundImage: imageUrl != null &&
+                          imageUrl.isNotEmpty
+                          ? NetworkImage(imageUrl)
+                          : const AssetImage(
+                          "assets/images/bathroom_cleaner.png")
+                      as ImageProvider,
                     ),
-                  ),
+                    const SizedBox(height: 10),
+                    Text(
+                      name,
+                      style: const TextStyle(
+                          color: Colors.white, fontSize: 18),
+                    ),
+                    Text(
+                      email,
+                      style:
+                      const TextStyle(color: Colors.white70),
+                    ),
+                  ],
                 ),
-              ],
-            ),
+              ),
 
-            const SizedBox(height: 10),
+              _drawerItem(Icons.home, "Home", () => Get.back()),
+              _drawerItem(Icons.work, "Job Details",
+                      () => Get.to(() => const ProviderJobDetailScreen())),
+              _drawerItem(Icons.assignment, "Bookings",
+                      () => Get.to(() => const ProviderBookingsScreen())),
+              _drawerItem(Icons.category, "Add & Update Category",
+                      () => Get.to(() => const ProviderUpdateCategoryScreen())),
+              _drawerItem(Icons.design_services, "Manage Services",
+                      () => Get.toNamed(Routes.providerManageServices)),
+              _drawerItem(Icons.lock, "Change Password",
+                      () => Get.to(() => ChangePasswordScreen())),
+              _drawerItem(Icons.edit, "Edit Profile",
+                      () => Get.to(() => const ProviderEditProfileScreen())),
+              _drawerItem(Icons.chat, "Chat List",
+                      () => Get.to(() => const ProviderChatListScreen())),
+              _drawerItem(Icons.logout, "Logout", () {
+                Get.defaultDialog(
+                  title: "Confirm logout",
+                  middleText: "Are you sure you want to log out?",
+                  textCancel: "Cancel",
+                  textConfirm: "OK",
+                  confirmTextColor: Colors.white,
+                  onConfirm: () async {
+                    await FirebaseAuth.instance.signOut();
+                    Get.offAllNamed(Routes.loginProvider);
+                  },
+                );
+              }),
 
-            // ================= DRAWER ITEMS =================
-
-            _drawerItem(
-              Icons.home_outlined,
-              "Home",
-                  () {
-                Get.back();
-              },
-            ),
-
-            _drawerItem(
-              Icons.work_outline,
-              "Job Details",
-                  () {
-                Get.back();
-                Get.to(() => const ProviderJobDetailScreen());
-              },
-            ),
-
-            _drawerItem(
-              Icons.assignment_outlined,
-              "Bookings",
-                  () {
-                Get.back();
-                Get.to(() => const ProviderBookingsScreen());
-              },
-            ),
-
-            _drawerItem(
-              Icons.category_outlined,
-              "Add & Update Category",
-                  () {
-                Get.back();
-                Get.to(() => const ProviderUpdateCategoryScreen());
-              },
-            ),
-
-            // ✅ ALREADY CORRECT (kept same)
-            _drawerItem(
-              Icons.design_services_outlined,
-              "Manage Services",
-                  () {
-                Get.back();
-                Get.toNamed(Routes.providerManageServices);
-              },
-            ),
-
-            _drawerItem(
-              Icons.chat_outlined,
-              "Chat List",
-                  () {
-                Get.back();
-                Get.to(() => const ProviderChatListScreen());
-              },
-            ),
-
-            _drawerItem(
-              Icons.help_outline,
-              "Help & Support",
-                  () {
-                Get.back();
-              },
-            ),
-          ],
-        ),
+            ],
+          );
+        },
       ),
     );
   }
 }
 
+// =======================================================
+// DRAWER ITEM WIDGET
+// =======================================================
 
-
-
-Widget _drawerItem(IconData icon, String text, VoidCallback onTap) {
+Widget _drawerItem(
+    IconData icon, String title, VoidCallback onTap) {
   return ListTile(
     leading: Icon(icon, color: Colors.black87),
-    title: Text(text, style: const TextStyle(color: Colors.black87)),
+    title:
+    Text(title, style: const TextStyle(color: Colors.black87)),
     onTap: onTap,
   );
 }

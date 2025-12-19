@@ -15,7 +15,7 @@ class CleaningServiceModel {
     required this.icon,
   });
 
-  /// 🔥 Firestore / JSON → Model
+  /// 🔥 Firestore / JSON → Model (with document id)
   factory CleaningServiceModel.fromJson(
       String id,
       Map<String, dynamic> json,
@@ -30,9 +30,22 @@ class CleaningServiceModel {
     );
   }
 
-  /// 🔁 Model → Firestore (Admin / Booking save)
+  /// 🔥 Map → Model (FOR GET.arguments / BookingDetail)
+  factory CleaningServiceModel.fromMap(Map<String, dynamic> map) {
+    return CleaningServiceModel(
+      id: map['id'] ?? '', // safe default
+      mainType: map['mainType'] ?? '',
+      category: map['category'] ?? '',
+      description: map['description'] ?? '',
+      price: (map['price'] as num?)?.toInt() ?? 0,
+      icon: map['icon'] ?? 'cleaning_services',
+    );
+  }
+
+  /// 🔁 Model → Firestore / Navigation
   Map<String, dynamic> toJson() {
     return {
+      'id': id, // 🔥 important for booking flow
       'mainType': mainType,
       'category': category,
       'description': description,

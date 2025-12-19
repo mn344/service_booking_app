@@ -4,6 +4,9 @@ import 'package:google_fonts/google_fonts.dart';
 import '../../viewmodels/auth/login_view_model.dart';
 import 'register_screen.dart';
 import 'reset_password_screen.dart';
+import 'package:flutter/gestures.dart';
+import '../../routes.dart';
+
 
 class LoginScreen extends StatefulWidget {
   final String userType;
@@ -139,11 +142,17 @@ class _LoginScreenState extends State<LoginScreen> {
                               );
                             }
                           },
+
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: Colors.blue,
+                            foregroundColor: Colors.white,
+                          ),
                           child: viewModel.isLoading.value
                               ? const CircularProgressIndicator(
-                            color: Colors.white,
+                            color: Colors.blue,
                           )
                               : const Text("Login"),
+
                         ),
                       );
                     }),
@@ -163,15 +172,35 @@ class _LoginScreenState extends State<LoginScreen> {
 
                     Center(
                       child: TextButton(
-                        onPressed: () {
-                          Get.to(() =>
-                              RegisterScreen(userType: widget.userType));
-                        },
-                        child: const Text(
-                          "Don't have an account? Register",
+                        onPressed: null, // ❌ poori line clickable nahi
+                        child: RichText(
+                          text: TextSpan(
+                            text: "Don't have an account? ",
+                            style: const TextStyle(
+                              color: Colors.black87, // 👈 blue text
+                              fontSize: 14,
+                            ),
+                            children: [
+                              TextSpan(
+                                text: "Register",
+                                style: const TextStyle(
+                                  color: Colors.blue, // 👈 black text
+                                  fontWeight: FontWeight.bold,
+                                ),
+                                recognizer: TapGestureRecognizer()
+                                  ..onTap = () {
+                                    Get.toNamed(
+                                      Routes.register,
+                                      arguments: widget.userType,
+                                    );
+                                  },
+                              ),
+                            ],
+                          ),
                         ),
                       ),
                     ),
+
                   ],
                 ),
               ),

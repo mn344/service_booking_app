@@ -5,43 +5,50 @@ class AuthRepository {
   final FirebaseAuth _auth = FirebaseAuth.instance;
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
 
-  // ---------------- LOGIN ----------------
+
   Future<UserCredential> login(String email, String password) async {
-    return await _auth.signInWithEmailAndPassword(
-      email: email.trim().toLowerCase(), // 🔴 normalize email
+    final credential = await _auth.signInWithEmailAndPassword(
+      email: email.trim().toLowerCase(),
       password: password.trim(),
     );
+
+
+    await createProfileIfMissing(
+      uid: credential.user!.uid,
+      email: credential.user!.email!,
+    );
+
+    return credential;
   }
 
-  // ---------------- REGISTER ----------------
+
   Future<UserCredential> register(String email, String password) async {
     return await _auth.createUserWithEmailAndPassword(
-      email: email.trim().toLowerCase(), // 🔴 normalize email
+      email: email.trim().toLowerCase(),
       password: password.trim(),
     );
   }
 
-  // ---------------- SAVE USER DATA ----------------
+
   Future<void> saveUserToFirestore({
     required String uid,
     required String email,
-    required String role,
+    required String role, // "user" | "provider"
   }) async {
     await _firestore.collection("users").doc(uid).set({
-      "email": email.trim().toLowerCase(), // 🔴 normalize email
+      "email": email.trim().toLowerCase(),
       "role": role,
       "createdAt": FieldValue.serverTimestamp(),
     });
   }
 
-  // 🔴 NEW: CHECK USER PROFILE EXISTS
+
   Future<bool> doesUserProfileExist(String uid) async {
-    final doc =
-    await _firestore.collection("users").doc(uid).get();
+    final doc = await _firestore.collection("users").doc(uid).get();
     return doc.exists;
   }
 
-  // 🔴 NEW: AUTO CREATE PROFILE IF MISSING (LOGIN SAFETY)
+
   Future<void> createProfileIfMissing({
     required String uid,
     required String email,
@@ -57,27 +64,27 @@ class AuthRepository {
     }
   }
 
-  // ---------------- EMAIL VERIFICATION ----------------
+
   Future<void> sendEmailVerification() async {
     final user = _auth.currentUser;
+
     if (user != null && !user.emailVerified) {
       await user.sendEmailVerification();
     }
   }
 
   bool isEmailVerified() {
-    final user = _auth.currentUser;
-    return user?.emailVerified ?? false;
+    return _auth.currentUser?.emailVerified ?? false;
   }
 
-  // ---------------- RESET PASSWORD ----------------
+
   Future<void> resetPassword(String email) async {
     await _auth.sendPasswordResetEmail(
-      email: email.trim().toLowerCase(), // 🔴 normalize email
+      email: email.trim().toLowerCase(),
     );
   }
 
-  // ---------------- CHANGE PASSWORD ----------------
+
   Future<void> changePassword({
     required String oldPass,
     required String newPass,
@@ -97,7 +104,18 @@ class AuthRepository {
     await user.updatePassword(newPass);
   }
 
-  // ---------------- LOGOUT ----------------
+
+  Future<String> getCurrentUserRole() async {
+    final user = _auth.currentUser;
+    if (user == null) return "user";
+
+    final doc =
+    await _firestore.collection('users').doc(user.uid).get();
+
+    return doc.data()?['role'] ?? 'user';
+  }
+
+
   Future<void> logout() async {
     await _auth.signOut();
   }

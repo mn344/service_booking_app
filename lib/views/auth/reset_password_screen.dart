@@ -33,7 +33,8 @@ class ResetPasswordScreen extends GetView<ResetPasswordViewModel> {
       ),
 
       body: SafeArea(
-        child: Padding(
+          child: SingleChildScrollView(
+          child: Padding(
           padding: const EdgeInsets.all(20),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
@@ -64,41 +65,55 @@ class ResetPasswordScreen extends GetView<ResetPasswordViewModel> {
               const SizedBox(height: 30),
 
               // BUTTON
-              Obx(
-                    () => SizedBox(
-                  width: double.infinity,
-                  height: 52,
-                  child: ElevatedButton(
-                    onPressed: controller.isLoading.value
-                        ? null
-                        : () async {
-                      try {
-                        await controller.sendResetLink(
-                          emailController.text,
-                        );
+          Obx(
+                () => SizedBox(
+              width: double.infinity,
+              height: 52,
+              child: ElevatedButton(
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: Colors.blue, // 🔵 Button background
+                  disabledBackgroundColor: Colors.blue.withOpacity(0.5), // jab disabled ho
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(30),
+                  ),
+                ),
+                onPressed: controller.isLoading.value
+                    ? null
+                    : () async {
+                  try {
+                    await controller.sendResetLink(
+                      emailController.text,
+                    );
 
-                        Get.snackbar(
-                          "Success",
-                          "Reset link sent to your email",
-                        );
-                      } catch (e) {
-                        Get.snackbar(
-                          "Error",
-                          e.toString(),
-                        );
-                      }
-                    },
-                    child: controller.isLoading.value
-                        ? const CircularProgressIndicator(
-                      color: Colors.white,
-                    )
-                        : const Text("Send Reset Link"),
+                    Get.snackbar(
+                      "Success",
+                      "Reset link sent to your email",
+                    );
+                  } catch (e) {
+                    Get.snackbar(
+                      "Error",
+                      e.toString(),
+                    );
+                  }
+                },
+                child: controller.isLoading.value
+                    ? const CircularProgressIndicator(
+                  color: Colors.blue,
+                )
+                    : const Text(
+                  "Send Reset Link",
+                  style: TextStyle(
+                    color: Colors.white,
+                    fontWeight: FontWeight.bold,
                   ),
                 ),
               ),
-            ],
+            ),
           ),
+        ],
         ),
+      )
+      )
       ),
     );
   }

@@ -1,6 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
+import '../../routes.dart';
+import '../../models/cleaning_service_model.dart';
+
 class PersonalInfoScreen extends StatefulWidget {
   const PersonalInfoScreen({super.key});
 
@@ -9,42 +12,27 @@ class PersonalInfoScreen extends StatefulWidget {
 }
 
 class _PersonalInfoScreenState extends State<PersonalInfoScreen> {
+  // ---------------- CONTROLLERS ----------------
   final TextEditingController _nameController = TextEditingController();
   final TextEditingController _phoneController = TextEditingController();
   final TextEditingController _addressController = TextEditingController();
 
-  // ---------------- TEXT FIELD UI ----------------
-  Widget _buildTextField(
-      String label,
-      TextEditingController controller,
-      TextInputType keyboardType,
-      ) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Text(
-          label,
-          style: const TextStyle(
-            fontSize: 15,
-            fontWeight: FontWeight.w600,
-          ),
-        ),
-        const SizedBox(height: 6),
-        Container(
-          padding: const EdgeInsets.symmetric(horizontal: 12),
-          decoration: BoxDecoration(
-            border: Border.all(color: Colors.blue, width: 1.3),
-            borderRadius: BorderRadius.circular(12),
-          ),
-          child: TextField(
-            controller: controller,
-            keyboardType: keyboardType,
-            decoration: const InputDecoration(border: InputBorder.none),
-          ),
-        ),
-        const SizedBox(height: 18),
-      ],
-    );
+  // ---------------- RECEIVED DATA (✅ FIXED TYPES) ----------------
+  late final List<CleaningServiceModel> selectedServices;
+  late final int totalPrice;
+  late final String mainType;
+
+  // ---------------- INIT ----------------
+  @override
+  void initState() {
+    super.initState();
+
+    final args = Get.arguments as Map<String, dynamic>;
+
+    selectedServices =
+    List<CleaningServiceModel>.from(args['selectedServices'] ?? []);
+    totalPrice = args['totalPrice'] ?? 0;
+    mainType = args['mainType'] ?? '';
   }
 
   // ---------------- ALERT ----------------
@@ -74,13 +62,16 @@ class _PersonalInfoScreenState extends State<PersonalInfoScreen> {
       return;
     }
 
-    // ✅ GO TO PROVIDER LIST (CORRECT FLOW)
+    // ✅ GO TO PROVIDER LIST WITH FULL DATA
     Get.toNamed(
-      '/providerList',
+      Routes.providerList,
       arguments: {
         'name': name,
         'phone': phone,
         'address': address,
+        'mainType': mainType,
+        'totalPrice': totalPrice,
+        'selectedServices': selectedServices,
       },
     );
   }
@@ -101,7 +92,11 @@ class _PersonalInfoScreenState extends State<PersonalInfoScreen> {
           children: [
             _buildTextField("Name", _nameController, TextInputType.name),
             _buildTextField("Phone Number", _phoneController, TextInputType.phone),
-            _buildTextField("Address", _addressController, TextInputType.streetAddress),
+            _buildTextField(
+              "Address",
+              _addressController,
+              TextInputType.streetAddress,
+            ),
             const SizedBox(height: 10),
             SizedBox(
               width: double.infinity,
@@ -127,6 +122,37 @@ class _PersonalInfoScreenState extends State<PersonalInfoScreen> {
           ],
         ),
       ),
+    );
+  }
+
+  // ---------------- TEXT FIELD ----------------
+  Widget _buildTextField(
+      String label,
+      TextEditingController controller,
+      TextInputType keyboardType,
+      ) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(
+          label,
+          style: const TextStyle(fontSize: 15, fontWeight: FontWeight.w600),
+        ),
+        const SizedBox(height: 6),
+        Container(
+          padding: const EdgeInsets.symmetric(horizontal: 12),
+          decoration: BoxDecoration(
+            border: Border.all(color: Colors.blue, width: 1.3),
+            borderRadius: BorderRadius.circular(12),
+          ),
+          child: TextField(
+            controller: controller,
+            keyboardType: keyboardType,
+            decoration: const InputDecoration(border: InputBorder.none),
+          ),
+        ),
+        const SizedBox(height: 18),
+      ],
     );
   }
 }

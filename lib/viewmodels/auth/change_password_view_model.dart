@@ -22,17 +22,35 @@ class ChangePasswordViewModel extends GetxController {
     try {
       isLoading(true);
 
+      // 🔹 CHANGE PASSWORD
       await _repo.changePassword(
         oldPass: oldPass,
         newPass: newPass,
       );
 
+      // 🔹 FETCH ROLE FROM FIRESTORE
+      final role = await _repo.getCurrentUserRole();
+
       Get.snackbar("Success", "Password updated");
+
+      // 🔹 ROLE BASED NAVIGATION
+      if (role == 'provider') {
+        Get.offAllNamed('/providerHome');
+      } else {
+        Get.offAllNamed('/home');
+      }
 
     } catch (e) {
       Get.snackbar("Error", e.toString());
     } finally {
       isLoading(false);
     }
+  }
+
+  @override
+  void onClose() {
+    oldPassController.dispose();
+    newPassController.dispose();
+    super.onClose();
   }
 }

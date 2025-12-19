@@ -14,7 +14,11 @@ class AuthBinding extends Bindings {
     // 🔵 Inject All Auth Related ViewModels
     Get.lazyPut<LoginViewModel>(() => LoginViewModel());
     Get.lazyPut<RegisterViewModel>(() => RegisterViewModel());
-    Get.lazyPut<ResetPasswordViewModel>(() => ResetPasswordViewModel());
+    Get.put<ResetPasswordViewModel>(
+      ResetPasswordViewModel(),
+      permanent: true,
+    );
+
     Get.lazyPut<ChangePasswordViewModel>(() => ChangePasswordViewModel());
     Get.lazyPut<ProfileScreenViewModel>(() => ProfileScreenViewModel());
   }

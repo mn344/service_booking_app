@@ -11,13 +11,13 @@ class ProviderServiceRepository {
         .collection('services');
   }
 
-  // CREATE
+
   Future<void> addService(
       String providerId, ProviderServiceModel service) {
     return _ref(providerId).add(service.toMap());
   }
 
-  // READ
+
   Stream<List<ProviderServiceModel>> getServices(String providerId) {
     return _ref(providerId).snapshots().map((snap) =>
         snap.docs.map((doc) =>
@@ -27,7 +27,7 @@ class ProviderServiceRepository {
     );
   }
 
-  // UPDATE
+
   Future<void> updateService(
       String providerId, ProviderServiceModel service) {
     return _ref(providerId)
@@ -35,7 +35,8 @@ class ProviderServiceRepository {
         .update(service.toMap());
   }
 
-  // DELETE
+
+
   Future<void> deleteService(
       String providerId, String serviceId) {
     return _ref(providerId).doc(serviceId).delete();

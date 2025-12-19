@@ -16,6 +16,7 @@ import 'views/common/provider_list_screen.dart';
 
 // 🔹 AUTH SCREENS
 import 'views/auth/login_screen.dart';
+import 'views/auth/register_screen.dart';
 import 'views/auth/reset_password_screen.dart';
 import 'views/auth/change_password_screen.dart';
 
@@ -40,6 +41,7 @@ class Routes {
   // 🔐 AUTH
   static const loginUser = '/loginUser';
   static const loginProvider = '/loginProvider';
+  static const register = '/register';
   static const resetPassword = '/resetPassword';
   static const changePassword = '/changePassword';
 
@@ -84,6 +86,12 @@ class AppPages {
       page: () => LoginScreen(userType: "provider"),
       binding: AuthBinding(),
     ),
+    GetPage(
+      name: Routes.register,
+      page: () => RegisterScreen(userType: Get.arguments),
+      binding: AuthBinding(),
+    ),
+
     GetPage(
       name: Routes.resetPassword,
       page: () => ResetPasswordScreen(),

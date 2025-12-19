@@ -3,7 +3,7 @@ class ProviderModel {
   final String name;
   final String price;
   final String rating;
-  final String image;
+  final String? image;
 
   ProviderModel({
     required this.id,
